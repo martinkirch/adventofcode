@@ -1012,8 +1012,7 @@ raw_test = """00100
 00010
 01010"""
 
-
-inputs = raw_test.split("\n")
+inputs = raw.split("\n")
 
 counts = {
     "0": [0] * len(inputs[0]),
@@ -1043,48 +1042,35 @@ print(gamma, epsilon)
 
 print(f"Power consumption is {power}")
 
-def o2_criteria(input, i):
-    matches = True
-    for j in range(i+1):
-        matches = matches and input[j] == gamma[j]
-        if not matches:
-            return False
-    return matches
+def find(wanted_most_1, wanted_most_0):
+    remaining_flag = [True] * len(inputs)
+    for ith_bit in range(len(inputs[0])):
+        count_1 = 0
+        count_0 = 0
+        for i, input in enumerate(inputs):
+            if remaining_flag[i]:
+                if input[ith_bit] == "0":
+                    count_0 += 1
+                else:
+                    count_1 += 1
+        if count_1 >= count_0:
+            wanted_bit = wanted_most_1
+        else:
+            wanted_bit = wanted_most_0
+        remaining_count = 0
+        remaining = 0
+        for i, input in enumerate(inputs):
+            if remaining_flag[i]:
+                if input[ith_bit] == wanted_bit:
+                    remaining = input
+                    remaining_count += 1
+                else:
+                    remaining_flag[i] = False
+        if remaining_count == 1:
+            return remaining
+    
+o2_rating = int(find("1", "0"), base=2)
+co2_rating = int(find("0", "1"), base=2)
 
-def co2_criteria(input, i):
-    matches = True
-    for j in range(i+1):
-        matches = matches and input[j] == epsilon[j]
-        if not matches:
-            return False
-    return matches
+print("remaining life support", o2_rating * co2_rating)
 
-o2_rating = None
-co2_rating = None
-o2_candidate = None
-co2_candidate = None
-
-for i in range(len(inputs[0])):
-    print(i)
-    count_o2 = 0
-    count_co2 = 0
-    for input in inputs:
-        if not o2_rating and o2_criteria(input, i):
-            o2_candidate = input
-            print(f"o2 candidate {input}")
-            count_o2 += 1
-        if not co2_rating and co2_criteria(input, i):
-            print(f"co2 candidate {input}")
-            co2_candidate = input
-            count_co2 += 1
-    if count_o2 == 1:
-        o2_rating = o2_candidate
-        print(f"o2_rating = {o2_candidate}")
-    if count_co2 == 1:
-        print(f"co2_rating = {co2_candidate}")
-        co2_rating = co2_candidate
-    if co2_rating and o2_rating:
-        break
-
-life_support = int(o2_rating, base=2) * int(co2_rating, base=2)
-print(f"Life support at {life_support}")
