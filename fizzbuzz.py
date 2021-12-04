@@ -7,6 +7,8 @@ on battery:
  * modulo 3 and 5 only once and sys.stdout.write("Fizz"/"Buzz") peaks around 6Mb/s
  * same but in py3 gets back to 10mb/s
  * using sys.stdout.buffer.write(b'Buzz') and sys.stdout.buffer.write(b'%d' % i) peaks around 9.5Mb/s
+ * itertools.cycle over a the fizzbuzz cycle and sys.stdout.buffer.write(b'%d' % i) peaks at 11Mb/s
+ * integrating \n to each sys.stdout.buffer.write peaks at 15Mb/s !!
 
 """
 
@@ -14,12 +16,28 @@ import sys
 
 # 20000000 does 153MiB
 
+from itertools import cycle
+loop = cycle([
+    b'FizzBuzz\n',
+    None,
+    None,
+    b'Fizz\n',
+    None,
+    b'Buzz\n',
+    b'Fizz\n',
+    None,
+    None,
+    b'Fizz\n',
+    b'Buzz\n',
+    None,
+    b'Fizz\n',
+    None,
+    None,
+])
+
 for i in range(20000000):
-    if i % 3 == 0:
-        written = sys.stdout.buffer.write(b'Fizz')
-    if i % 5 == 0:
-        written = sys.stdout.buffer.write(b'Buzz')
-    if written == 1:
-        sys.stdout.buffer.write(b'%d' % i)
-    # sets written to 1
-    written = sys.stdout.buffer.write(b'\n')
+    current = next(loop)
+    if current:
+        sys.stdout.buffer.write(current)
+    else:
+        sys.stdout.buffer.write(b'%d\n' % i)
