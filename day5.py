@@ -517,6 +517,9 @@ class Point:
     
     def step_to(self, other):
         vector = (other.x - self.x, other.y - self.y)
+        if vector[0] != 0 and vector[1] != 0 and abs(vector[0]) != abs(vector[1]):
+            raise ValueError()
+
         return ((vector[0] // abs(vector[0])) if vector[0] != 0 else 0, (vector[1] // abs(vector[1])) if vector[1] != 0 else 0)
     
     def move(self, vector):
@@ -534,8 +537,7 @@ for line in input.split("\n"):
     end   = Point(*[int(x) for x in segment[1].split(',')])
     max_x = max(max_x, start.x, end.x)
     max_y = max(max_y, start.y, end.y)
-    if start.x == end.x or start.y == end.y or :
-        segments.append((start, end))
+    segments.append((start, end))
 
 print(f"max_x {max_x}, max_y {max_y}")
 
@@ -543,7 +545,10 @@ diagram = [[0] * (max_y+1) for i in range(max_x+1)]
 
 for segment in segments:
     current = segment[0]
-    vector = current.step_to(segment[1])
+    try:
+        vector = current.step_to(segment[1])
+    except ValueError:
+        continue
     diagram[current.x][current.y] += 1
     while current != segment[1]:
         current = current.move(vector)
