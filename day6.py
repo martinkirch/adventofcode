@@ -3,16 +3,19 @@ input = [3,5,1,2,5,4,1,5,1,2,5,5,1,3,1,5,1,3,2,1,5,1,1,1,2,3,1,3,1,2,1,1,5,1,5,4
 
 fishes = input
 
-for day in range(80):
-    nbfishes = len(fishes)
-    print(f"day {day}: {nbfishes} fishes")
-    #print(fishes)
-    for i in range(nbfishes):
-        if fishes[i] == 0:
-            fishes[i] = 6
-            fishes.append(8)
-        else:
-            fishes[i] -= 1
+fishes_per_age = [0] * 9
 
-nbfishes = len(fishes)
+for fish in fishes:
+    fishes_per_age[fish] += 1
+
+for day in range(256):
+    nbfishes = sum(fishes_per_age)
+    print(f"day {day}: {nbfishes} fishes")
+    new_fishes = fishes_per_age[0]
+    for i in range(8):
+        fishes_per_age[i] = fishes_per_age[i+1]
+    fishes_per_age[6] += new_fishes
+    fishes_per_age[8] = new_fishes
+
+nbfishes = sum(fishes_per_age)
 print(f"day {day+1}: {nbfishes} fishes")
