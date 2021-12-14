@@ -11,4 +11,13 @@ cost = 0
 for i in INPUT:
     cost += abs(i-median)
 
-print(f"cost: {cost}")
+print(f"basic cost: {cost}")
+
+mean = sum(INPUT)//len(INPUT)
+print(f"mean: {mean}")
+
+cost = 0
+for i in INPUT:
+    cost += sum(i for i in range(abs(i-mean)+1))
+
+print(f"elaborated cost: {cost}")
