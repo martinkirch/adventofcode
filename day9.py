@@ -149,23 +149,24 @@ def attempt(i, j, value=None):
         return None
     try:
         if map[i][j][0] < 9:
-            if value is not None:
-                if map[i][j][1] is None:
+            if value:
+                if not map[i][j][1]:
                     map[i][j][1] = value
-                    value.append(map[i][j][0])
             else:
-                if map[i][j][1] is not None:
+                if map[i][j][1]:
                     return map[i][j][1]
     except IndexError:
         pass
     return None
 
-basins = []
+color_i = 1
+colors_equivalence = {}
+
 for i in range(len(map)):
     for j in range(len(map[i])):
         if map[i][j][0] == 9:
             continue
-        if map[i][j][1] is not None:
+        if map[i][j][1]:
             basin = map[i][j][1]
         else:
             neighbouring_basin = []
@@ -182,24 +183,50 @@ for i in range(len(map)):
             if a is not None and a not in neighbouring_basin:
                 neighbouring_basin.append(a)
             
-            if len(neighbouring_basin) > 1:
-                raise ValueError("shit")
-            elif neighbouring_basin:
-                basin = neighbouring_basin[0]
+            if neighbouring_basin:
+                existing_eq = [colors_equivalence[c] for c in neighbouring_basin if colors_equivalence.get(c)]
+                if len(existing_eq) > 1:
+                    raise ValueError("shit")
+                elif existing_eq:
+                    basic = existing_eq[0]
+                else:
+                    basin = color_i
+                    for other in neighbouring_basin:
+                        colors_equivalence[other] = color_i
+                    color_i += 1
             else:
-                basin = []
-                basins.append(basin)
+                basin = color_i
+                color_i += 1
         attempt(i, j, basin)
         attempt(i-1, j, basin)
         attempt(i, j-1, basin)
         attempt(i+1, j, basin)
         attempt(i, j+1, basin)
 
-basins.sort(key=len, reverse=True)
-greatest = [len(b) for b in basins[0:3]]
+def homogenize_chain(color):
+    translate_to = colors_equivalence.get(color)
+    if translate_to:
+        if translate_to == color:
+            return color
+        translate_to = homogenize_chain(translate_to)
+    else:
+        translate_to = color
+    colors_equivalence[color] = translate_to
+    return translate_to
+
+for i in range(color_i):
+    homogenize_chain(i)
+
+count_per_color = dict((c, 0) for c in colors_equivalence.keys())
+for i in range(len(map)):
+    for j in range(len(map[i])):
+        if map[i][j][1]:
+            count_per_color[colors_equivalence[map[i][j][1]]] += 1
+
+greatest = sorted(count_per_color.values(), reverse=True)
 
 print(greatest[0] * greatest[1] * greatest[2])
-# 338910 is too low
+# 356070 is too low
 #the issue is what if
 # 9999399799
 # 9912345799
