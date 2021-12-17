@@ -165,8 +165,38 @@ def attempt(i, j):
         pass
     return None
 
-color_i = 1
-colors_equivalence = {}
+class BasinColors:
+    def __init__(self):
+        self.color_i = 1
+        self.colors_equivalence = {}
+    
+    def get_new_color(self):
+        c = self.color_i
+        self.color_i += 1
+        return c
+
+    def homogenize(self):
+        def _chain(color):
+            translate_to = self.colors_equivalence.get(color)
+            if translate_to:
+                if translate_to == color:
+                    return color
+                translate_to = _chain(translate_to)
+            else:
+                translate_to = color
+            self.colors_equivalence[color] = translate_to
+            return translate_to
+        for c in range(self.color_i):
+            _chain(c)
+    
+    def mix(self, colors:set):
+        basin = max(colors)
+        for c in colors:
+            self.colors_equivalence[c] = basin
+        self.homogenize()
+        return basin
+
+colors = BasinColors()
 
 for i in range(len(map)):
     for j in range(len(map[i])):
@@ -186,39 +216,23 @@ for i in range(len(map)):
                 if len(neighbouring_basin) == 1:
                     basin = neighbouring_basin.pop()
                 else:
-                    basin = max(neighbouring_basin)
-                    for other in neighbouring_basin:
-                        if other == basin:
-                            continue
-                        if other in colors_equivalence and colors_equivalence[other] != basin:
-                            raise ValueError(f"Color {other} already has equivalence {colors_equivalence[other]} (we'd like {basin})")
-                        colors_equivalence[other] = basin
+                    basin = colors.mix(neighbouring_basin)
             else:
-                basin = color_i
-                color_i += 1
+                basin = colors.get_new_color()
+        # useful on test_input2:
+        #print(f"map[{i}][{j}] = {basin}")
         map[i][j][1] = basin
 
-def homogenize_chain(color):
-    translate_to = colors_equivalence.get(color)
-    if translate_to:
-        if translate_to == color:
-            return color
-        translate_to = homogenize_chain(translate_to)
-    else:
-        translate_to = color
-    colors_equivalence[color] = translate_to
-    return translate_to
+colors.homogenize()
+ce = colors.colors_equivalence
 
-for i in range(color_i):
-    homogenize_chain(i)
+print("Found %d basins" % len(set(ce.values())))
 
-print("Found %d basins" % len(set(colors_equivalence.values())))
-
-count_per_color = dict((c, 0) for c in colors_equivalence.values())
+count_per_color = dict((c, 0) for c in ce.values())
 for i in range(len(map)):
     for j in range(len(map[i])):
         if map[i][j][1]:
-            count_per_color[colors_equivalence[map[i][j][1]]] += 1
+            count_per_color[ce[map[i][j][1]]] += 1
 
 greatest = sorted(count_per_color.values(), reverse=True)
 print(greatest[0], greatest[1], greatest[2])
