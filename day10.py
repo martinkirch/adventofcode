@@ -158,7 +158,7 @@ def check(line):
                 return score[c]
     return 0
 
-INPUT = test_input
+INPUT = complete_input
 lines = INPUT.split("\n")
 
 total = 0
@@ -183,10 +183,15 @@ score = {
     '>': 4,
 }
 
+scores = []
 for line in lines:
     if check(line) == 0:
         total = 0
         completed = [c for c in complete(line)]
         for c in completed:
             total = total * 5 + score[c]
-        print(''.join(completed), total)
+        #print(''.join(completed), total)
+        scores.append(total)
+
+scores.sort()
+print("middle score: ", scores[len(scores)//2])
