@@ -84,18 +84,27 @@ for line in INPUT.split("\n"):
         connections[caves[0]].append(caves[1])
         connections[caves[1]].append(caves[0])
 
-nbpaths = 0
 path = []
+
+visited_twice = None
+def test_cave(c):
+    return isupper(c) or c not in path or visited_twice is None 
+
 def start(cave):
+    global visited_twice
     path.append(cave)
-    possible_next = [c for c in connections[cave] if isupper(c) or c not in path]
     total = 0
-    if possible_next:
-        for n in possible_next:
-            total += start(n)
+    if cave == "end":
+        total = 1
     else:
-        if cave == "end":
-            total = 1
+        possible_next = [c for c in connections[cave] if test_cave(c)]
+        if possible_next:
+            for n in possible_next:
+                if not isupper(n) and n in path: # only for phase2
+                    visited_twice = n
+                total += start(n)
+                if n == visited_twice:
+                    visited_twice = None
     path.pop()
     return total
 
