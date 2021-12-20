@@ -121,11 +121,27 @@ my_input = """11199
 
 risklevels = [[int(i) for i in line] for line in puzzle_input.split("\n")]
 print(f"size is {len(risklevels)},{len(risklevels[0])}")
+base = len(risklevels)
+
+def rotate(i, r):
+    res = i + r
+    if res >= 10:
+        res = res % 10 + 1
+    return res
+
+for r in range(4):
+    for i in range(base):
+        for j in range(base):
+            risklevels[i].append(rotate(risklevels[i][j], r + 1))
+
+for r in range(4):
+    for i in range(base):
+        risklevels.append([rotate(risklevels[i][j], r + 1) for j in range(len(risklevels[i]))])
+
 limit = len(risklevels)
 
 # for i in range(limit):
-#     print(risklevels[i][:limit])
-
+#     print(''.join(str(s) for s in risklevels[i]))
 @total_ordering
 class Point:
     def __init__(self, x, y, dist) -> None:
@@ -170,7 +186,7 @@ def maybe(x, y, current_dist, append_to:list):
     existing = dist[x][y]
     existing_dist = existing.dist
     potential_dist = current_dist + risklevels[x][y]
-    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit()):
+    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit() + 1):
         append_to.append((dist[x][y], potential_dist))
     else:
         return None
