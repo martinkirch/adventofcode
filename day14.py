@@ -170,27 +170,31 @@ step 10, 3073 items
 most-least frequent = 1588
 """
 
-counts = defaultdict(int)
+letters = set(template)
+for pair,letter in rules.items():
+    letters.add(letter)
 
-def deepen(depth, a, b):
-    sub = rules.get(a+b)
-    if sub:
-        if depth == 20:
-            counts[a] += 1
-            counts[sub] += 1
-        else:
-            deepen(depth + 1, a, sub)
-            deepen(depth + 1, sub, b)
-    else:
-        counts[a] += 1
-
+pairs = {}
+counts = {}
+for l1 in letters:
+    counts[l1] = 0
+    for l2 in letters:
+        pairs[l1+l2] = 0
 for i in range(1, len(template)):
-    print(f"deepen(1, {template[i-1]}, {template[i]})")
-    deepen(1, template[i-1], template[i])
-counts[template[-1]] += 1
+    pairs[template[i-1] + template[i]] += 1
+    counts[template[i]] += 1
+counts[template[0]] += 1
+
+for step in range(40):
+    pairs_after = dict(pairs)
+    for pair,letter in rules.items():
+        pairs_after[pair] -= pairs[pair]
+        pairs_after[pair[0]+letter] += pairs[pair]
+        pairs_after[letter+pair[1]] += pairs[pair]
+        counts[letter] += pairs[pair]
+    pairs = pairs_after
 
 counts = list(counts.items())
 counts.sort(key=lambda t: t[1])
 print(counts)
 print(counts[-1][1] - counts[0][1])
-
