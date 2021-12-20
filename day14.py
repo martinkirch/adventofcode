@@ -129,23 +129,65 @@ _ = next(lines)
 
 rules = dict(line.split(" -> ") for line in lines)
 
-def step():
+def step(chain):
     i = 1
-    while i < len(template):
-        pair = template[i-1] + template[i]
+    while i < len(chain):
+        pair = chain[i-1] + chain[i]
         if pair in rules:
-            template.insert(i, rules[pair])
+            chain.insert(i, rules[pair])
             i += 1
         i += 1
 
-for i in range(10):
-    step()
+def phase1():
+    tmpl = template[:]
+    for i in range(10):
+        step(tmpl)
+        print(f"step {i+1}, {len(tmpl)} items")
 
-print("length: ", len(template))
+    print("length: ", len(tmpl))
+
+    counts = defaultdict(int)
+    for i in tmpl:
+        counts[i] += 1
+
+    counts = list(counts.items())
+    counts.sort(key=lambda t: t[1])
+    print(counts)
+    print(counts[-1][1] - counts[0][1])
+
+phase1()
+
+################# PHASE 1 ##########################
+"""
+on puzzle 
+step 10, 19457 items
+[('O', 514), ('V', 1222), ('N', 1491), ('B', 1492), ('S', 1699), ('C', 2181), ('P', 2201), ('K', 2467), ('H', 3092), ('F', 3098)]
+most-least frequent = 2584
+
+on test
+step 10, 3073 items
+[('H', 161), ('C', 298), ('N', 865), ('B', 1749)]
+most-least frequent = 1588
+"""
 
 counts = defaultdict(int)
-for i in template:
-    counts[i] += 1
+
+def deepen(depth, a, b):
+    sub = rules.get(a+b)
+    if sub:
+        if depth == 20:
+            counts[a] += 1
+            counts[sub] += 1
+        else:
+            deepen(depth + 1, a, sub)
+            deepen(depth + 1, sub, b)
+    else:
+        counts[a] += 1
+
+for i in range(1, len(template)):
+    print(f"deepen(1, {template[i-1]}, {template[i]})")
+    deepen(1, template[i-1], template[i])
+counts[template[-1]] += 1
 
 counts = list(counts.items())
 counts.sort(key=lambda t: t[1])
