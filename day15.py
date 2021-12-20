@@ -138,18 +138,27 @@ class Point:
             and __o.dist == self.dist
         )
     
+    def dist_to_limit(self) -> int:
+        "that's not the euclidian distance, but the distance as number of steps to out"
+        return (limit - self.x) + (limit - self.y)
+    
     def __lt__(self, __o: object) -> bool:
         return (isinstance(__o, Point)
-            and self.dist < __o.dist
+            and self.dist_to_limit() < __o.dist_to_limit()
         )
 
 
 known_shortest_distance = 999999999
 infinity = 999999999
-dist = [[infinity] * limit for i in range(limit)]
-dist[0][0] = 0 # "the starting position is never entered, so its risk is not counted"
-path = [Point(0, 0, 0)]
-current = path[0]
+dist = []
+for i in range(limit):
+    dist.append(list())
+    for j in range(limit):
+        dist[i].append(Point(i, j, infinity))
+
+dist[0][0].dist = 0 # "the starting position is never entered, so its risk is not counted"
+current = dist[0][0]
+path = [current]
 
 def maybe(x, y, current_dist, append_to:list):
     """
@@ -158,10 +167,11 @@ def maybe(x, y, current_dist, append_to:list):
     """
     if x < 0 or x >= limit or y < 0 or y >= limit:
         return None
-    existing_dist = dist[x][y]
+    existing = dist[x][y]
+    existing_dist = existing.dist
     potential_dist = current_dist + risklevels[x][y]
     if potential_dist < existing_dist and potential_dist < known_shortest_distance:
-        append_to.append(Point(x, y, potential_dist))
+        append_to.append((dist[x][y], potential_dist))
     else:
         return None
 
@@ -175,10 +185,11 @@ while path:
     maybe(current.x, current.y+1, current.dist, potential)
     maybe(current.x, current.y-1, current.dist, potential)
     if potential:
-        potential.sort()
-        current = potential[0]
+        potential.sort(key=lambda t:t[0])
+        elected = potential[0]
+        current = elected[0]
+        current.dist = elected[1]
         path.append(current)
-        dist[current.x][current.y] = current.dist
         if current.x == target and current.y == target:
             known_shortest_distance = current.dist
     else:
@@ -191,4 +202,9 @@ while path:
 
 # for i in range(limit):
 #     print(dist[i][:limit])
-print(dist[target][target], ", took ", time()-start_t, "s")
+print(dist[target][target].dist, ", took ", time()-start_t, "s")
+
+# phase 1 shortest total risk is 685
+# with the "go to closest point" heuristic (Point.__lt__ : self.dist < __o.dist), took  266s
+# with the "go closer to end" heuristic (Point.__lt__: self.dist_to_limit() < __o.dist_to_limit()), took 47s !
+# and now with a variant that don't re-instanciate all candidate points: 45s too
