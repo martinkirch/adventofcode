@@ -117,7 +117,7 @@ my_input = """11199
 99199
 91189
 91919
-99911""" #expects mindist=15
+99911""" #expects mindist=16
 
 risklevels = [[int(i) for i in line] for line in puzzle_input.split("\n")]
 print(f"size is {len(risklevels)},{len(risklevels[0])}")
@@ -170,7 +170,7 @@ def maybe(x, y, current_dist, append_to:list):
     existing = dist[x][y]
     existing_dist = existing.dist
     potential_dist = current_dist + risklevels[x][y]
-    if potential_dist < existing_dist and potential_dist < known_shortest_distance:
+    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit()):
         append_to.append((dist[x][y], potential_dist))
     else:
         return None
@@ -208,3 +208,4 @@ print(dist[target][target].dist, ", took ", time()-start_t, "s")
 # with the "go to closest point" heuristic (Point.__lt__ : self.dist < __o.dist), took  266s
 # with the "go closer to end" heuristic (Point.__lt__: self.dist_to_limit() < __o.dist_to_limit()), took 47s !
 # and now with a variant that don't re-instanciate all candidate points: 45s too
+# refine potential_dist capping: best base is known_shortest_distance - existing.dist_to_limit()- 36s !
