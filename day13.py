@@ -1054,5 +1054,5 @@ sheet = Sheet(puzzle_input)
 for i in sheet.instructions:
     sheet.fold(i)
     print(i, sheet.count_dots(), " dots")
-    break # phase 1
-#sheet.print()
+    #break # phase 1
+sheet.print()
