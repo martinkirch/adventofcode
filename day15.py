@@ -119,7 +119,7 @@ my_input = """11199
 91919
 99911""" #expects mindist=16
 
-risklevels = [[int(i) for i in line] for line in puzzle_input.split("\n")]
+risklevels = [[int(i) for i in line] for line in test_input.split("\n")]
 print(f"size is {len(risklevels)},{len(risklevels[0])}")
 base = len(risklevels)
 
@@ -144,23 +144,21 @@ limit = len(risklevels)
 #     print(''.join(str(s) for s in risklevels[i]))
 @total_ordering
 class Point:
-    def __init__(self, x, y, dist) -> None:
+    def __init__(self, x, y) -> None:
         self.x = x
         self.y = y
-        self.dist = dist
+        self.dist = infinity
+        self.dist_to_limit = (limit - self.x) + (limit - self.y) #that's not the euclidian distance, but the distance as number of steps to out
+        self.potential_dist = infinity
     
     def __eq__(self, __o: object) -> bool:
         return (isinstance(__o, Point)
             and __o.dist == self.dist
         )
-    
-    def dist_to_limit(self) -> int:
-        "that's not the euclidian distance, but the distance as number of steps to out"
-        return (limit - self.x) + (limit - self.y)
-    
+
     def __lt__(self, __o: object) -> bool:
         return (isinstance(__o, Point)
-            and self.dist_to_limit() < __o.dist_to_limit()
+            and self.dist_to_limit < __o.dist_to_limit
         )
 
 
@@ -170,7 +168,7 @@ dist = []
 for i in range(limit):
     dist.append(list())
     for j in range(limit):
-        dist[i].append(Point(i, j, infinity))
+        dist[i].append(Point(i, j))
 
 dist[0][0].dist = 0 # "the starting position is never entered, so its risk is not counted"
 current = dist[0][0]
@@ -186,8 +184,9 @@ def maybe(x, y, current_dist, append_to:list):
     existing = dist[x][y]
     existing_dist = existing.dist
     potential_dist = current_dist + risklevels[x][y]
-    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit() + 1):
-        append_to.append((dist[x][y], potential_dist))
+    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit + 1):
+        existing.potential_dist = potential_dist
+        append_to.append(existing)
     else:
         return None
 
@@ -201,10 +200,9 @@ while path:
     maybe(current.x, current.y+1, current.dist, potential)
     maybe(current.x, current.y-1, current.dist, potential)
     if potential:
-        potential.sort(key=lambda t:t[0])
-        elected = potential[0]
-        current = elected[0]
-        current.dist = elected[1]
+        potential.sort()
+        current = potential[0]
+        current.dist = current.potential_dist
         path.append(current)
         if current.x == target and current.y == target:
             known_shortest_distance = current.dist
@@ -225,3 +223,7 @@ print(dist[target][target].dist, ", took ", time()-start_t, "s")
 # with the "go closer to end" heuristic (Point.__lt__: self.dist_to_limit() < __o.dist_to_limit()), took 47s !
 # and now with a variant that don't re-instanciate all candidate points: 45s too
 # refine potential_dist capping: best base is known_shortest_distance - existing.dist_to_limit()- 36s !
+
+# phase2 on test input shortest totla risk is 315
+# base took 3.3s
+# add potential_dist and dist_to_limit attributes: 2.8s
