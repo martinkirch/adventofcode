@@ -120,7 +120,7 @@ my_input = """11199
 99911""" #expects mindist=16
 
 risklevels = [[int(i) for i in line] for line in test_input.split("\n")]
-print(f"size is {len(risklevels)},{len(risklevels[0])}")
+print(f"input size is {len(risklevels)},{len(risklevels[0])}")
 base = len(risklevels)
 
 def rotate(i, r):
@@ -139,6 +139,7 @@ for r in range(4):
         risklevels.append([rotate(risklevels[i][j], r + 1) for j in range(len(risklevels[i]))])
 
 limit = len(risklevels)
+print(f"complete input size: {limit}")
 
 # for i in range(limit):
 #     print(''.join(str(s) for s in risklevels[i]))
@@ -184,7 +185,7 @@ def maybe(x, y, current_dist, append_to:list):
     existing = dist[x][y]
     existing_dist = existing.dist
     potential_dist = current_dist + risklevels[x][y]
-    if potential_dist < existing_dist and potential_dist < (known_shortest_distance - existing.dist_to_limit + 1):
+    if potential_dist < existing_dist and potential_dist <= (known_shortest_distance - existing.dist_to_limit):
         existing.potential_dist = potential_dist
         append_to.append(existing)
     else:
@@ -206,6 +207,7 @@ while path:
         path.append(current)
         if current.x == target and current.y == target:
             known_shortest_distance = current.dist
+            print(f"best known_shortest_distance:{known_shortest_distance}")
     else:
         # backtrack
         path.pop()
@@ -226,4 +228,4 @@ print(dist[target][target].dist, ", took ", time()-start_t, "s")
 
 # phase2 on test input shortest totla risk is 315
 # base took 3.3s
-# add potential_dist and dist_to_limit attributes: 2.8s
+# add potential_dist and dist_to_limit attributes: 3.2s
