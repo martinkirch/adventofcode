@@ -141,37 +141,41 @@ for r in range(4):
 limit = len(risklevels)
 print(f"complete input size: {limit}")
 
-# for i in range(limit):
-#     print(''.join(str(s) for s in risklevels[i]))
+infinity = 999999999
 @total_ordering
 class Point:
     def __init__(self, x, y) -> None:
         self.x = x
         self.y = y
+        self.risk = risklevels[x][y]
         self.dist = infinity
         self.dist_to_limit = (limit - self.x) + (limit - self.y) #that's not the euclidian distance, but the distance as number of steps to out
         self.potential_dist = infinity
-    
+
     def __eq__(self, __o: object) -> bool:
         return (isinstance(__o, Point)
-            and __o.dist == self.dist
+            and __o.dist_to_limit == self.dist_to_limit
         )
 
     def __lt__(self, __o: object) -> bool:
+        """
+        only used by potential.sort()
+        """
         return (isinstance(__o, Point)
             and self.dist_to_limit < __o.dist_to_limit
         )
 
 
 known_shortest_distance = 999999999
-infinity = 999999999
 dist = []
 for i in range(limit):
     dist.append(list())
     for j in range(limit):
         dist[i].append(Point(i, j))
 
-dist[0][0].dist = 0 # "the starting position is never entered, so its risk is not counted"
+# "the starting position is never entered, so its risk is not counted"
+dist[0][0].dist = 0
+dist[0][0].risk = 0
 current = dist[0][0]
 path = [current]
 
@@ -184,7 +188,7 @@ def maybe(x, y, current_dist, append_to:list):
         return None
     existing = dist[x][y]
     existing_dist = existing.dist
-    potential_dist = current_dist + risklevels[x][y]
+    potential_dist = current_dist + existing.risk
     if potential_dist < existing_dist and potential_dist <= (known_shortest_distance - existing.dist_to_limit):
         existing.potential_dist = potential_dist
         append_to.append(existing)
@@ -207,7 +211,7 @@ while path:
         path.append(current)
         if current.x == target and current.y == target:
             known_shortest_distance = current.dist
-            print(f"best known_shortest_distance:{known_shortest_distance}")
+            # print(f"best known_shortest_distance:{known_shortest_distance}")
     else:
         # backtrack
         path.pop()
@@ -229,3 +233,4 @@ print(dist[target][target].dist, ", took ", time()-start_t, "s")
 # phase2 on test input shortest totla risk is 315
 # base took 3.3s
 # add potential_dist and dist_to_limit attributes: 3.2s
+# adding .risk is a bit faster - but @property{potential_dist} is hella slow !
