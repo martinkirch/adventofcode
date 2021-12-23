@@ -233,3 +233,10 @@ print(f"called heapify {heapify_calls} times")
 # wow, phase2 on test input goes straight to the best solution:
 # 315 , took  0.01729750633239746 s
 # called heapify 0 times
+
+# LIKE, WOW
+# input size is 100,100
+# complete input size: 500
+# best known_shortest_distance:2995
+# 2995 , took  1.766174554824829 s
+# called heapify 0 times
