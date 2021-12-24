@@ -3,7 +3,7 @@ Day17 "trick shot"
 
 y0 and x0 are 0
 
-x(t) = x(t_prev) + max(Vx - t, 0) 
+x(t) = x(t_prev) + max(Vx - t + 1, 0) 
 y(t) = y(t_prev) + Vy - t + 1
 
 """
@@ -24,7 +24,7 @@ def find_t_in_target(Vy):
     yt = 0
     for t in range(1, 999):
         yt = yt + (Vy - t + 1)
-        print(f"{Vy} -- y({t})={yt}")
+        # print(f"{Vy} -- y({t})={yt}")
         if yt > highest:
             highest = yt
         if min_y <= yt and yt <= max_y:
@@ -32,14 +32,47 @@ def find_t_in_target(Vy):
         if yt < min_y:
             return (None, highest)
 
+# find the min vx that ends in target's x range
+for min_vx in range(1, min_x):
+    vx = min_vx
+    xt = 0
+    t= 0
+    while vx > 0:
+        xt += vx
+        vx -=1
+    if xt >= min_x:
+        break
+
+print(f"min_vx is {min_vx}")
+
+def count_x_in_target(Vy, t_target):
+    """
+    TODO: 6,7,8,9 pour Vy=0
+    """
+    counter = 0
+    for vx in range(min_vx, max_x+1):
+        xt = 0
+        for t in range(1, t_target+1):
+            xt += vx
+            vx -=1
+        if min_x <= xt and xt <= max_x:
+            print(f"{vx}, {Vy}")
+            counter += 1
+    return counter
+
 highest_ever = 0
-for Vy in range(-min_y):
+velocities = 0
+for Vy in range(min_y, -min_y):
     t, top = find_t_in_target(Vy)
     if t is not None:
-        print(t, top)
+        # print(t, top)
+        # phase 2:
+        velocities += count_x_in_target(Vy, t)
         if top > highest_ever:
             highest_ever = top
             print(f"highest_ever = {highest_ever}")
+
+print(f"{velocities} possibilities")
 
 #phase 1: 
 # puzzle highest_ever = 10585
