@@ -12,7 +12,7 @@ from math import sqrt
 test_input = [[20,30],[-10,-5]]
 puzzle_input = [[102,157], [-146,-90]]
 
-INPUT = test_input
+INPUT = puzzle_input
 
 min_x = INPUT[0][0]
 max_x = INPUT[0][1]
@@ -46,18 +46,23 @@ for min_vx in range(1, min_x):
 print(f"min_vx is {min_vx}")
 
 def count_x_in_target(Vy, t_target):
-    """
-    TODO: 6,7,8,9 pour Vy=0
-    """
     counter = 0
-    for vx in range(min_vx, max_x+1):
+    for Vx in range(min_vx, max_x+1):
         xt = 0
-        for t in range(1, t_target+1):
-            xt += vx
-            vx -=1
-        if min_x <= xt and xt <= max_x:
-            print(f"{vx}, {Vy}")
-            counter += 1
+        yt = 0
+        Vxt = Vx
+        for t in range(1, t_target*2):
+            yt = yt + (Vy - t + 1)
+            xt += Vxt
+            # print(f"x(t{t})={xt} y(t{t})={yt}")
+            Vxt = max(0, Vxt-1)
+            if min_x <= xt and xt <= max_x and min_y <= yt and yt <= max_y:
+                # print(f"------- valid velocity: {Vx}, {Vy}")
+                counter += 1
+                break
+            if xt > max_x or yt < min_y:
+                # print(f"xxxx too low")
+                break
     return counter
 
 highest_ever = 0
@@ -77,3 +82,7 @@ print(f"{velocities} possibilities")
 #phase 1: 
 # puzzle highest_ever = 10585
 # test highest_ever = 45
+
+# phase 2
+# test: 112 possibilities
+# puzzle: 5247 possibilities
