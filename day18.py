@@ -1,6 +1,7 @@
 """
 Day 18: Snailfish
 """
+from copy import deepcopy
 
 test_input = """[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 [[[5,[2,8]],4],[5,[[9,9],0]]]
@@ -185,19 +186,21 @@ def split_step(pair):
         except Splitted:
             raise
 
-
-number = numbers[0]
-for i in range(1, len(numbers)):
-    number = [number, numbers[i]]
+def reduce_loop(added):
     try_again = True
     while try_again:
         try_again = False
         try:
-            #print(number)
-            explose_step(number)
-            split_step(number)
+            #print(added)
+            explose_step(added)
+            split_step(added)
         except (Explosion, Splitted) as exn:
             try_again = True
+
+number = deepcopy(numbers[0])
+for i in range(1, len(numbers)):
+    number = [number, deepcopy(numbers[i])]
+    reduce_loop(number)
 print(number)
 
 def magnitude(pair):
@@ -206,3 +209,43 @@ def magnitude(pair):
     else:
         return pair
 print(f"magnitude is {magnitude(number)}")
+
+# phase1: 
+# test_input magnitude is 4140
+# puzzle_input magnitude is 3524
+
+
+greatest_magnitude = 0
+greatest_magnitude_pair = None
+for i in range(len(numbers)):
+    for j in range(len(numbers)):
+        if i != j:
+            number = [deepcopy(numbers[i]), deepcopy(numbers[j])]
+            reduce_loop(number)
+            mag = magnitude(number)
+            if mag > greatest_magnitude:
+                greatest_magnitude = mag
+                greatest_magnitude_pair = (i, j)
+
+# phase 2:
+print(f"Greatest magnitude is {greatest_magnitude} (couple {greatest_magnitude_pair})")
+print(f"Obtained by\n{numbers[greatest_magnitude_pair[0]]}")
+print(f"+\n{numbers[greatest_magnitude_pair[1]]}")
+
+"""
+test:
+Greatest magnitude is 3993 (couple (8, 0))
+Obtained by
+[[2, [[7, 7], 7]], [[5, 8], [[9, 3], [0, 2]]]]
++
+[[[0, [5, 8]], [[1, 7], [9, 6]]], [[4, [1, 2]], [[1, 4], 2]]]
+
+
+puzzle: 
+Greatest magnitude is 4656 (couple (97, 51))
+Obtained by
+[[[[6, 7], 9], [[5, 5], [6, 6]]], [[7, 1], [[8, 2], [3, 1]]]]
++
+[[[[7, 9], 4], [[8, 8], 7]], [[[3, 5], 2], [[4, 4], [6, 5]]]]
+
+"""
