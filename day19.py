@@ -31,7 +31,7 @@ def print_points(l:list[Point]):
     for p in l:
         print(p)
 
-INPUT = load("day19_puzzle_input.txt")
+INPUT = load("day19_test_input.txt")
 
 def compute_sorted_distances(l:list[Point]):
     """
@@ -104,19 +104,14 @@ def match_distances(scanner1:list, scanner2:list):
 points_count = 0
 
 for scanner_id in range(len(distances)):
-    points_ids_that_match = set()
     for other_scanner_id in range(scanner_id):
         overlaps = match_distances(distances[scanner_id], distances[other_scanner_id])
         if len(overlaps) >= 12:
             print(f"Scanners {scanner_id} and {other_scanner_id} overlap ({len(overlaps)} points)")
-            points_ids_that_match.update(overlaps.keys())
-            # for point_i, point_j in overlaps.items():
-            #     print(f"matching_points[{point_i}] = {point_j}")
-
-            # FIXME
-            points_count -= len(overlaps)
-    scanner_own_beacons = len(distances[scanner_id]) - len(points_ids_that_match)
-    points_count += len(distances[scanner_id])  
+            for point_i, point_j in overlaps.items():
+                print(f"matching_points[{point_i}] = {point_j}")
+    # FIXME
+    points_count += len(distances[scanner_id])
 
 print(f"points count: {points_count}")
 
