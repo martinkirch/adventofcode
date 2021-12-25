@@ -4,7 +4,6 @@ Day 19: Beacon Scanner
 from __future__ import annotations
 from typing import Optional
 from dataclasses import dataclass
-
 @dataclass
 class Point():
     x:int
@@ -32,7 +31,7 @@ def print_points(l:list[Point]):
     for p in l:
         print(p)
 
-INPUT = load("day19_test_input.txt")
+INPUT = load("day19_puzzle_input.txt")
 
 def compute_sorted_distances(l:list[Point]):
     """
@@ -58,11 +57,11 @@ def compute_sorted_distances(l:list[Point]):
 
 distances = [compute_sorted_distances(scanner) for scanner in INPUT]
 
-def find_12_overlaps(a:list[int], b:list[int]) -> Optional[int]:
+def find_11_overlaps(a:list[int], b:list[int]) -> Optional[int]:
     """
     Assumes a and b are sorted and of same length
     Returns:
-        number of overlapping distances, if >= 12
+        number of overlapping distances, if >= 11
     """
     i = 0
     j = 0
@@ -78,26 +77,48 @@ def find_12_overlaps(a:list[int], b:list[int]) -> Optional[int]:
             j += 1
         else:
             i += 1
-        if i > (max_i - 12 + nb_matching) or j > (max_j - 12 + nb_matching):
+        if i > (max_i - 11 + nb_matching) or j > (max_j - 11 + nb_matching):
             return None
-    if nb_matching < 12:
+    if nb_matching < 11:
         return None
     return nb_matching
 
-def match_distances(d1:list, d2:list):
-    nb_matching = 0
-    for point_i in range(len(d1)):
-        for point_j in range(len(d2)):
-            matches = find_12_overlaps(d1[point_i], d2[point_j])
+def match_distances(scanner1:list, scanner2:list):
+    """
+    we search for 12 common beacons seen from scanner1 and scanner2 - but as seen
+    from one point it means we try to find 11 similar distances
+    """
+    matching_points = {}
+    matched = set()
+    for point_i in range(len(scanner1)):
+        for point_j in range(len(scanner2)):
+            if point_j in matched:
+                continue
+            matches = find_11_overlaps(scanner1[point_i], scanner2[point_j])
             if matches:
-                nb_matching += 1
-    return nb_matching
+                matching_points[point_i] = point_j
+                matched.add(point_j)
+                break
+    return matching_points
 
+points_count = 0
 
 for scanner_id in range(len(distances)):
+    points_ids_that_match = set()
     for other_scanner_id in range(scanner_id):
-        nb_overlaps = match_distances(distances[scanner_id], distances[other_scanner_id])
-        if nb_overlaps:
-            print(f"Scanners {scanner_id} and {other_scanner_id} overlap")
+        overlaps = match_distances(distances[scanner_id], distances[other_scanner_id])
+        if len(overlaps) >= 12:
+            print(f"Scanners {scanner_id} and {other_scanner_id} overlap ({len(overlaps)} points)")
+            points_ids_that_match.update(overlaps.keys())
+            # for point_i, point_j in overlaps.items():
+            #     print(f"matching_points[{point_i}] = {point_j}")
 
+            # FIXME
+            points_count -= len(overlaps)
+    scanner_own_beacons = len(distances[scanner_id]) - len(points_ids_that_match)
+    points_count += len(distances[scanner_id])  
 
+print(f"points count: {points_count}")
+
+# test input: points count=79
+# puzzle input: points count=287 is too low!
