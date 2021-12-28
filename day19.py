@@ -31,14 +31,13 @@ def print_points(l:list[Point]):
     for p in l:
         print(p)
 
-INPUT = load("day19_puzzle_input.txt")
+INPUT = load("day19_test_input.txt")
 
-def compute_sorted_distances(l:list[Point]):
+def compute_distances(l:list[Point]):
     """
     to detect overlaps, we rely on distances between beacons because these
     are scanner-independant. We do not know which 12 among the 25 match, so we
-    need a complete matrix. Distances are sorted, with the distance to self (0)
-    excluded, to simplify the matching - but it breaks the matrix' symetry.
+    need a complete matrix.
     """
     distances = []
     for i in range(len(l)):
@@ -52,7 +51,7 @@ def compute_sorted_distances(l:list[Point]):
             distances[i].append(distances[j][i])
     return distances
 
-distances = [compute_sorted_distances(scanner) for scanner in INPUT]
+distances = [compute_distances(scanner) for scanner in INPUT]
 distances_sets = []
 for scanner_id in range(len(distances)):
     scanner_list = []
