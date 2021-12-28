@@ -31,7 +31,7 @@ def print_points(l:list[Point]):
     for p in l:
         print(p)
 
-INPUT = load("day19_test_input.txt")
+INPUT = load("day19_puzzle_input.txt")
 
 def compute_sorted_distances(l:list[Point]):
     """
@@ -57,11 +57,11 @@ def compute_sorted_distances(l:list[Point]):
 
 distances = [compute_sorted_distances(scanner) for scanner in INPUT]
 
-def find_11_overlaps(a:list[int], b:list[int]) -> Optional[int]:
+def find_overlaps(a:list[int], b:list[int]) -> Optional[int]:
     """
     Assumes a and b are sorted and of same length
     Returns:
-        number of overlapping distances, if >= 11
+        number of overlapping distances
     """
     i = 0
     j = 0
@@ -77,15 +77,11 @@ def find_11_overlaps(a:list[int], b:list[int]) -> Optional[int]:
             j += 1
         else:
             i += 1
-        if i > (max_i - 11 + nb_matching) or j > (max_j - 11 + nb_matching):
-            return None
-    if nb_matching < 11:
-        return None
     return nb_matching
 
 def match_distances(scanner1:list, scanner2:list):
     """
-    we search for 12 common beacons seen from scanner1 and scanner2 - but as seen
+    we search for common beacons seen from scanner1 and scanner2 - but as seen
     from one point it means we try to find 11 similar distances
     """
     matching_points = {}
@@ -94,7 +90,7 @@ def match_distances(scanner1:list, scanner2:list):
         for point_j in range(len(scanner2)):
             if point_j in matched:
                 continue
-            matches = find_11_overlaps(scanner1[point_i], scanner2[point_j])
+            matches = find_overlaps(scanner1[point_i], scanner2[point_j])
             if matches:
                 matching_points[point_i] = point_j
                 matched.add(point_j)
@@ -104,16 +100,18 @@ def match_distances(scanner1:list, scanner2:list):
 points_count = 0
 
 for scanner_id in range(len(distances)):
+    points_in_scanner_id_or_more = set([i for i in range(len(distances[scanner_id]))])
     for other_scanner_id in range(scanner_id):
         overlaps = match_distances(distances[scanner_id], distances[other_scanner_id])
         if len(overlaps) >= 12:
             print(f"Scanners {scanner_id} and {other_scanner_id} overlap ({len(overlaps)} points)")
-            for point_i, point_j in overlaps.items():
-                print(f"matching_points[{point_i}] = {point_j}")
-    # FIXME
-    points_count += len(distances[scanner_id])
+        #     for point_i, point_j in overlaps.items():
+        #         print(f"matching_points[{point_i}] = {point_j}")
+        points_in_scanner_id_or_more.difference_update(overlaps.keys())
+    print(f"points_in_{scanner_id}_or_more: {points_in_scanner_id_or_more}")
+    points_count += len(points_in_scanner_id_or_more)
 
 print(f"points count: {points_count}")
 
 # test input: points count=79
-# puzzle input: points count=287 is too low!
+# puzzle input: points count=318 is too low!
