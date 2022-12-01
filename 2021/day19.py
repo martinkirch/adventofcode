@@ -3,6 +3,7 @@ Day 19: Beacon Scanner
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import numpy as np
 
 @dataclass
 class Point():
@@ -24,14 +25,14 @@ def load(filename):
                 beacons_per_scanner.append([])
             elif l:
                 coordinates = [int(i) for i in l.split(",")]
-                beacons_per_scanner[scanner_id].append(Point(coordinates[0], coordinates[1], coordinates[2]))
+                beacons_per_scanner[scanner_id].append(np.array(coordinates))
     return beacons_per_scanner
 
 def print_points(l:list[Point]):
     for p in l:
         print(p)
 
-INPUT = load("day19_test_input.txt")
+INPUT = load("day19_smolrelou_input.txt")
 
 def compute_distances(l:list[Point]):
     """
