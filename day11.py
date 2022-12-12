@@ -1,5 +1,5 @@
 from __future__ import annotations
-lines = open("day11_input.txt").readlines()
+lines = open("day11_test.txt").readlines()
 
 class Monkey:
     def __init__(self, lines:list[str]):
@@ -7,6 +7,9 @@ class Monkey:
         self.index = int(lines[0][7:-2])
         self.items = [int(i) for i in lines[1][18:-1].split(",")]
         self.operation = lines[2][19:-1]
+        if self.operation == "old * old":
+            print("AHA !")
+            self.operation = "old"
         self.test_divisible = int(lines[3][21:-1])
         self.dest_if_test = int(lines[4].split()[-1])
         self.dest_if_not_test = int(lines[5].split()[-1])
@@ -41,7 +44,6 @@ while i < len(lines):
 for round in range(20):
     for monkey in monkeys:
         monkey.turn()
-    print(f"round {round}")
     for monkey in monkeys:
         print(f"Monkey {monkey.index} holds {monkey.items}")
 
