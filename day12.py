@@ -48,32 +48,47 @@ class Point:
             and self.min_to_dest < __o.min_to_dest
         )
     
-map = [
-    [Point(x, y, height) for (y, height) in enumerate(row)]
-    for (x, row) in enumerate(raw_map)
-]
-height = len(map) - 1
-width = len(map[0]) - 1
+height = len(raw_map) - 1
+width = len(raw_map[0]) - 1
 
-def gen_neighbour(current:Point) -> Generator[Point]:
-    if current.y > 0:
-        yield map[current.x][current.y-1]
-    if current.y < width:
-        yield map[current.x][current.y+1]
-    if current.x > 0:
-            yield map[current.x-1][current.y]
-    if current.x < height:
-            yield map[current.x+1][current.y]
+class Finder:
+    def __init__(self, s_x, s_y):
+        self.map = [
+            [Point(x, y, h) for (y, h) in enumerate(row)]
+            for (x, row) in enumerate(raw_map)
+        ]
+        self.map[s_x][s_y].dist_from_start = 0
+        self.candidates:list[Point] = []
+        heappush(self.candidates, self.map[s_x][s_y])
 
-map[start[0]][start[1]].dist_from_start = 0
-candidates:list[Point] = []
-heappush(candidates, map[start[0]][start[1]])
-while(candidates):
-    current = heappop(candidates)
-    for neighbour in gen_neighbour(current):
-        if neighbour.height <= current.height + 1:
-            if neighbour.update_dist_from_start(current.dist_from_start):
-                heappush(candidates, neighbour)
+    def gen_neighbour(self, current:Point) -> Generator[Point]:
+        if current.y > 0:
+            yield self.map[current.x][current.y-1]
+        if current.y < width:
+            yield self.map[current.x][current.y+1]
+        if current.x > 0:
+                yield self.map[current.x-1][current.y]
+        if current.x < height:
+                yield self.map[current.x+1][current.y]
 
-print(f"Best length: {map[dest[0]][dest[1]].dist_from_start}")
+    def shortest(self) -> int:
+        while(self.candidates):
+            current = heappop(self.candidates)
+            for neighbour in self.gen_neighbour(current):
+                if neighbour.height <= current.height + 1:
+                    if neighbour.update_dist_from_start(current.dist_from_start):
+                        heappush(self.candidates, neighbour)
 
+        return self.map[dest[0]][dest[1]].dist_from_start
+
+print(f"Phase1: {Finder(start[0], start[1]).shortest()}")
+
+lengths = []
+for x, row in enumerate(raw_map):
+    for y, h in enumerate(row):
+        if h == ord('a'):
+            length = Finder(x, y).shortest()
+            if length:
+                lengths.append(length)
+lengths.sort()
+print(lengths[0])
