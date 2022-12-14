@@ -16,6 +16,8 @@ for line in lines:
 max_x += 1
 max_y += 1
 
+print(f"size is {max_x},{max_y}")
+
 class Matter(Enum):
     AIR = 0
     ROCK = 1
@@ -32,34 +34,38 @@ def val_to_str(item):
         case _:
             return '' 
 
-map = [
-    [Matter.AIR]*max_y for x in range(max_x)
-]
+def build_map():
+    map = [
+        [Matter.AIR]*max_y for x in range(max_x)
+    ]
 
-def draw_line(start, dest):
-    global map
-    if start[0] == dest[0]:
-        y1 = min(start[1], dest[1])
-        y2 = max(start[1], dest[1]) + 1
-        for y in range(y1, y2):
-            map[start[0]][y] = Matter.ROCK
-    elif start[1] == dest[1]:
-        x1 = min(start[0], dest[0])
-        x2 = max(start[0], dest[0]) + 1
-        for x in range(x1, x2):
-            map[x][start[1]] = Matter.ROCK
-    else:
-        raise ValueError("mmmh")
+    def draw_line(start, dest):
+        nonlocal map
+        if start[0] == dest[0]:
+            y1 = min(start[1], dest[1])
+            y2 = max(start[1], dest[1]) + 1
+            for y in range(y1, y2):
+                map[start[0]][y] = Matter.ROCK
+        elif start[1] == dest[1]:
+            x1 = min(start[0], dest[0])
+            x2 = max(start[0], dest[0]) + 1
+            for x in range(x1, x2):
+                map[x][start[1]] = Matter.ROCK
+        else:
+            raise ValueError("mmmh")
 
-for line in lines:
-    previous = None
-    current = None
-    for point in line.split(' -> '):
-        splitted = point.split(',')
-        current = (int(splitted[1]), int(splitted[0]))
-        if previous:
-            draw_line(previous, current)
-        previous = current
+    for line in lines:
+        previous = None
+        current = None
+        for point in line.split(' -> '):
+            splitted = point.split(',')
+            current = (int(splitted[1]), int(splitted[0]))
+            if previous:
+                draw_line(previous, current)
+            previous = current
+    return map
+
+map = build_map()
 
 def print_map():
     for l in map:
@@ -85,6 +91,8 @@ def pour():
                 x += 1
                 y -= 1
                 continue
+        else:
+            print("phase2 error")
         
         # one step down and to the right
         if y < max_y:
@@ -92,6 +100,8 @@ def pour():
                 x += 1
                 y += 1
                 continue
+        else:
+            print("phase2 error2")
         
         # rest !
         map[x][y] = Matter.SAND
@@ -104,6 +114,19 @@ for nb in count():
     except ValueError:
         break
 
-#print_map()
+print(f"phase1: {nb} units of sand come to rest before sand starts flowing into the abyss below")
 
-print(f"{nb} units of sand come to rest before sand starts flowing into the abyss below")
+#phase 2:
+max_y += max_x
+map = build_map()
+map.append([Matter.AIR]*max_y)
+map.append([Matter.ROCK]*max_y)
+
+for nb in count():
+    try:
+        pour()
+    except RuntimeError:
+        break
+
+# print_map()
+print(f"phase2: {nb} units of sand come to rest before sand reaches source")
