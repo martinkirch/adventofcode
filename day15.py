@@ -22,16 +22,23 @@ class Sensor:
             if self.dist(x, y) <= self.maxdist:
                 yield (x, y)
 
-    def intersect_skip(self, x, y) -> int:
+    def intersect_increment(self, x, y) -> int:
         """
         return 0 if (x,y) is not in sensor range
         otherwise, return how much y can be incremented to get out of reach
+
+        slow AF too (4 minutes!), but hey i got the star on first attempt
         """
         d = self.dist(x, y)
         if d <= self.maxdist:
-            return 2 * abs(y - self.sy) + 1
+            if y <= self.sy:
+                increment = 2 * (self.sy - y) + 1
+            else:
+                remaining_dist = self.maxdist - abs(x - self.sx)
+                increment = remaining_dist - (y - self.sy) + 1
+            return increment
 
-lines = open("day15_test.txt").readlines()
+lines = open("day15_input.txt").readlines()
 sensors = []
 for line in lines:
     m = parse.match(line)
@@ -58,15 +65,17 @@ for line in lines:
 
 # print(f"phase1: at {search_row}, {len(no_beacon)} cannot contain a beacon")
 
-size = 21
+size = 4000001
 for x in range(size):
     y = 0
     while y < size:
         for s in sensors:
-            increment = s.intersect_skip(x, y)
+            increment = s.intersect_increment(x, y)
             if increment:
                 y += increment
-                print(f"insersect {s}")
                 break
         else:
             print(f"{x,y} works")
+            print(f"frequency is {(4000000*x) + y}")
+            y += 1
+
