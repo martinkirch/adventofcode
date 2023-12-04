@@ -1,4 +1,2 @@
-#!/usr/bin/env python3
-
-def today(data:str) -> int:
+def today(data:list[str]) -> int:
     return 0

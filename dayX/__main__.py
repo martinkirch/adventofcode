@@ -1,6 +1,7 @@
+from os.path import dirname, join
 from . import today
 
-real_input = """
-"""
+with open(join(dirname(__file__), 'input.txt')) as f:
+    real_input = f.readlines()
 
 print(today(real_input))
