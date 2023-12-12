@@ -1,18 +1,33 @@
 import re
+from re import Match
 
-lettersdigit = re.compile("(one|two|three|four|five|six|seven|eight|nine)")
+firstletters = re.compile("^[^0-9]*?(one|two|three|four|five|six|seven|eight|nine)")
+lastletters = re.compile("(one|two|three|four|five|six|seven|eight|nine)[^0-9]*?$")
+
+def translate(m:Match[str]) -> str:
+    match m.group(1):
+        case 'one':
+            return "1"
+        case 'two':
+            return "2"
+        case 'three':
+            return "3"
+        case 'four':
+            return "4"
+        case 'five':
+            return "5"
+        case 'six':
+            return "6"
+        case 'seven':
+            return "7"
+        case 'eight':
+            return "8"
+        case 'nine':
+            return "9"
 
 def line_value(l: str) -> int:
-    l = lettersdigit.sub(lambda x: "<"+x.group(0)+">", l)
-    l = l.replace("<one>", "1")
-    l = l.replace("<two>", "2")
-    l = l.replace("<three>", "3")
-    l = l.replace("<four>", "4")
-    l = l.replace("<five>", "5")
-    l = l.replace("<six>", "6")
-    l = l.replace("<seven>", "7")
-    l = l.replace("<eight>", "8")
-    l = l.replace("<nine>", "9")
+    l = firstletters.sub(translate, l)
+    l = lastletters.sub(translate, l)
     first = None
     last = None
     for c in l:
