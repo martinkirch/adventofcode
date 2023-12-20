@@ -1,33 +1,55 @@
-import re
-from re import Match
+from dataclasses import dataclass
 
-firstletters = re.compile("^[^0-9]*?(one|two|three|four|five|six|seven|eight|nine)")
-lastletters = re.compile("(one|two|three|four|five|six|seven|eight|nine)[^0-9]*?$")
+letters = {
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
+    "six": "6",
+    "seven": "7",
+    "eight": "8",
+    "nine": "9",
+}
 
-def translate(m:Match[str]) -> str:
-    match m.group(1):
-        case 'one':
-            return "1"
-        case 'two':
-            return "2"
-        case 'three':
-            return "3"
-        case 'four':
-            return "4"
-        case 'five':
-            return "5"
-        case 'six':
-            return "6"
-        case 'seven':
-            return "7"
-        case 'eight':
-            return "8"
-        case 'nine':
-            return "9"
+@dataclass
+class Match():
+    pos: int
+    number: str
+
+def lreplace(l: str) -> str:
+    smallest = None
+    for k in letters:
+        i = l.find(k)
+        if i >= 0:
+            if smallest is None or smallest.pos > i:
+                smallest = Match(pos=i, number=k)
+    if smallest is None:
+        return l
+    for i in range(smallest.pos):
+        if l[i].isdigit():
+            return l
+    end = smallest.pos + len(smallest.number)
+    return l[0:smallest.pos] + letters[smallest.number] + l[end:]
+
+def rreplace(l: str) -> str:
+    greatest = None
+    for k in letters:
+        i = l.rfind(k)
+        if i >= 0:
+            if greatest is None or greatest.pos < i:
+                greatest = Match(pos=i, number=k)
+    if greatest is None:
+        return l
+    end = greatest.pos + len(greatest.number)
+    for i in range(end, len(l)):
+        if l[i].isdigit():
+            return l
+    return l[0:greatest.pos] + letters[greatest.number] + l[end:]
+    
 
 def line_value(l: str) -> int:
-    l = firstletters.sub(translate, l)
-    l = lastletters.sub(translate, l)
+    l = rreplace(lreplace(l))
     first = None
     last = None
     for c in l:
