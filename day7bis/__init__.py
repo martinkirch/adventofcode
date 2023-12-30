@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import total_ordering
 from enum import IntEnum
 from collections import Counter
@@ -11,11 +13,12 @@ class Rank(IntEnum):
     FOUR = 5
     FIVE = 6
 
-# strengh order is A, K, Q, T, 9, 8, 7, 6, 5, 4, 3, or 2
+# strengh order is A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2
 cardmap = {
-    'A': 13,
-    'K': 12,
-    'Q': 11,
+    'A': 14,
+    'K': 13,
+    'Q': 12,
+    'J': 11,
     'T': 10,
     '9': 9,
     '8': 8,
@@ -33,11 +36,34 @@ class Hand():
     bid: int
     rank: Rank
 
-    def __init__(self, line:str):
-        splitted = line.split()
-        self.hand = list(cardmap[c] for c in splitted[0])
-        self.bid = int(splitted[1])
+    def __init__(self, bid:int, hand: list[int]):
+        self.bid = bid
+        self.hand = hand
+        if 11 in self.hand:
+            self.replace_jokers()
+        else:
+            self.compute_rank()
 
+    @classmethod
+    def parse(cls, line:str) -> Hand:
+        splitted = line.split()
+        return Hand(int(splitted[1]), list(cardmap[c] for c in splitted[0]))
+
+    def replace_jokers(self):
+        others = set(self.hand)
+        others.remove(11)
+        if others:
+            possible = [
+                Hand(0, [o if c==11 else c for c in self.hand])
+                for o in others
+            ]
+            possible.sort()
+            best = possible.pop()
+            self.rank = best.rank
+        else:
+            self.rank = Rank.FIVE
+
+    def compute_rank(self):
         distinct = Counter(self.hand)
         if len(distinct) == 5:
             self.rank = Rank.HIGH
@@ -59,6 +85,8 @@ class Hand():
                 self.rank = Rank.FULL
         elif len(distinct) == 1:
             self.rank = Rank.FIVE
+        else:
+            raise ValueError()
 
     def __eq__(self, __value: object) -> bool:
         return (isinstance(__value, Hand) and
@@ -84,7 +112,7 @@ class Hand():
 
 def today(data:list[str]) -> int:
     total = 0
-    hands = [Hand(line) for line in data]
+    hands = [Hand.parse(line) for line in data]
     hands.sort()
     for i, h in enumerate(hands):
         rank = i + 1
