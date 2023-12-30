@@ -33,8 +33,7 @@ class TodayTest(TestCase):
         self.assertLess(Hand.parse("T55J5 684"), Hand.parse("QQQJA 483"))
         self.assertLess(Hand.parse("QQQJA 483"), Hand.parse("KTJJT 220"))
 
-        self.assertLess(Hand.parse("TTTTT 220"), Hand.parse("JJJJJ 483"))
-        self.assertLess(Hand.parse("JJJJJ 220"), Hand.parse("QQQQQ 483"))
+        self.assertLess(Hand.parse("JJJJJ 220"), Hand.parse("22222 483"))
 
         self.assertEqual(Hand.parse("QJJQ2 0").rank, Hand.parse("QQQQ2 0").rank)
         self.assertLess(Hand.parse("QJJQ2 0"), Hand.parse("QQQQ2 0"))

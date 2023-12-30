@@ -18,7 +18,6 @@ cardmap = {
     'A': 14,
     'K': 13,
     'Q': 12,
-    'J': 11,
     'T': 10,
     '9': 9,
     '8': 8,
@@ -28,6 +27,7 @@ cardmap = {
     '4': 4,
     '3': 3,
     '2': 2,
+    'J': 0,
 }
 
 @total_ordering
@@ -39,7 +39,7 @@ class Hand():
     def __init__(self, bid:int, hand: list[int]):
         self.bid = bid
         self.hand = hand
-        if 11 in self.hand:
+        if 0 in self.hand:
             self.replace_jokers()
         else:
             self.compute_rank()
@@ -51,10 +51,10 @@ class Hand():
 
     def replace_jokers(self):
         others = set(self.hand)
-        others.remove(11)
+        others.remove(0)
         if others:
             possible = [
-                Hand(0, [o if c==11 else c for c in self.hand])
+                Hand(0, [o if c==0 else c for c in self.hand])
                 for o in others
             ]
             possible.sort()
