@@ -1,5 +1,5 @@
 from unittest import TestCase
-from . import today
+from . import today, lcm_simple
 
 test_data = """LR
 
@@ -14,5 +14,9 @@ XXX = (XXX, XXX)
 """.strip().split('\n')
 
 class TodayTest(TestCase):
+    def test_lcm(self):
+        self.assertEqual(lcm_simple([2,3,4]), 12)
+        self.assertEqual(lcm_simple([3,4,5]), 60)
+
     def test_data(self):
         self.assertEqual(today(test_data), 6)
