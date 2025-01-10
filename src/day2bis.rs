@@ -1,36 +1,26 @@
 pub fn deltaok(levels:&Vec<i32>, basedelta:i32, tolerate:bool, i:usize, j:usize) -> bool {
+    if j == levels.len() {
+        return true;
+    }
     let delta = levels[j] - levels[i];
     if delta == 0 || delta > 3 || delta < -3 || 
         (delta > 0 && basedelta < 0) || (delta < 0 && basedelta > 0) {
         if tolerate {
-            let maybe = deltaok(levels, basedelta, false, i-1, j);
-            if maybe {
-                return true;
-            }
-            if j == levels.len() - 1 {
-                return true;
-            }
             return deltaok(levels, basedelta, false, i, j+1);
         }
         return false;
     }
-    if j == levels.len() - 1 {
-        return true;
-    } else {
-        return deltaok(levels, basedelta, tolerate, i+1, j+1);
-    }
-
+    return deltaok(levels, basedelta, tolerate, j, j+1);
 }
 
 pub fn is_safe(levels:&Vec<i32>) -> bool {
     let delta = levels[1] - levels[0];
-    let maybe = 
-        if delta == 0 || delta > 3 || delta < -3 {
-            false;
+    let maybe: bool = if delta == 0 || delta > 3 || delta < -3 {
+            false
         } else {
-            deltaok(levels, delta, true, 1, 2);
-        }
-    
+            deltaok(levels, delta, true, 1, 2)
+        };
+
     if !maybe {
         let delta2 = levels[2] - levels[0];
         if !(delta2 == 0 || delta2 > 3 || delta2 < -3) {
@@ -46,7 +36,7 @@ pub fn is_safe(levels:&Vec<i32>) -> bool {
             return deltaok(levels, delta3, false, 2, 3);
         }
     }
-    return false;
+    return maybe;
     
 }
 
