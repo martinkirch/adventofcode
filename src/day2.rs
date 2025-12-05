@@ -38,7 +38,7 @@ impl Iterator for Range {
 
 pub fn compute(input:&String) -> String {
     let mut invalid_ids_sum = 0;
-    for item in input.strip_suffix("\n").unwrap().split(',') {
+    for item in input.trim_end_matches("\n").split(',') {
         let mut raw = item.split('-').map(|x| x.parse::<u64>().unwrap());
         let lower = raw.next().unwrap();
         let higher = raw.next().unwrap();
