@@ -5,12 +5,14 @@ use crate::day1bis::compute as day1bis;
 use crate::day2::compute as day2;
 use crate::day2bis::compute as day2bis;
 use crate::day3::compute as day3;
+use crate::day3bis::compute as day3bis;
 
 pub mod day1;
 pub mod day1bis;
 pub mod day2;
 pub mod day2bis;
 pub mod day3;
+pub mod day3bis;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -26,6 +28,7 @@ fn main() {
         "2" => println!("{}", day2(&input)),
         "2bis" => println!("{}", day2bis(&input)),
         "3" => println!("{}", day3(&input)),
+        "3bis" => println!("{}", day3bis(&input)),
         _ => panic!("Invalid day number"),
     }
 }
