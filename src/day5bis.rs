@@ -37,8 +37,8 @@ pub fn compute(input:&String) -> String {
         while i < freshness.len() - 1 {
             if freshness[i].overlaps(&freshness[i+1]) {
                 if freshness[i+1].max > freshness[i].max {
-                    let low = &freshness[i];
-                    let h = &freshness[i+1];
+                    // let low = &freshness[i];
+                    // let h = &freshness[i+1];
                     // println!("Merging: {low:?} absorbs {h:?}");
                     freshness[i].max = freshness[i+1].max;
                 }
